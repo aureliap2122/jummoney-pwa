@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import PageHead from '../components/PageHead'
+import Icon, { kategoriIcon } from '../components/Icon'
+import { Jummo } from '../components/JummoMood'
 import { useToast } from '../components/Toast'
 import { api } from '../config/api'
 
@@ -30,6 +33,7 @@ export default function TransactionForm() {
   }, [id])
 
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
+  const masuk = f.type === 'pemasukan'
 
   const submit = async (e) => {
     e.preventDefault()
@@ -45,49 +49,79 @@ export default function TransactionForm() {
   }
 
   return (
-    <form onSubmit={submit} className="form">
-      <Link to="/transaksi">← Batal</Link>
-      <h1>{id ? 'Edit' : 'Catat'} Transaksi</h1>
-      {err && <p className="error">{err}</p>}
+    <div className="page">
+      <PageHead title={`${id ? 'Edit' : 'Catat'} Transaksi`} back="/transaksi" />
 
-      <label>
-        Jenis
-        <select value={f.type} onChange={(e) => setF({ ...f, type: e.target.value, category_id: '' })}>
-          <option value="pengeluaran">Pengeluaran</option>
-          <option value="pemasukan">Pemasukan</option>
-        </select>
-      </label>
+      <div className="form-layout">
+        <form onSubmit={submit} className="card form">
+          {err && <p className="error" role="alert">{err}</p>}
 
-      <label>
-        Nominal (Rp)
-        <input type="number" min="1" required value={f.amount} onChange={set('amount')} />
-      </label>
+          <div className="field">
+            <span className="label">Jenis</span>
+            <div className="seg" role="radiogroup" aria-label="Jenis transaksi">
+              <button type="button" role="radio" aria-checked={!masuk}
+                className={!masuk ? 'on out' : ''}
+                onClick={() => setF({ ...f, type: 'pengeluaran', category_id: '' })}>
+                <Icon name="arrowUp" size={18} strokeWidth={2.5} /> Pengeluaran
+              </button>
+              <button type="button" role="radio" aria-checked={masuk}
+                className={masuk ? 'on in' : ''}
+                onClick={() => setF({ ...f, type: 'pemasukan', category_id: '' })}>
+                <Icon name="arrowDown" size={18} strokeWidth={2.5} /> Pemasukan
+              </button>
+            </div>
+          </div>
 
-      <div style={{ marginBottom: 12 }}>
-        <small>Kategori</small>
-        <div className="chips">
-          {cats.filter((c) => c.type === f.type).map((c) => (
-            <button
-              type="button" key={c.id}
-              className={`chip ${f.category_id === c.id ? 'on' : ''}`}
-              onClick={() => setF({ ...f, category_id: c.id })}
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
+          <label className="field">
+            <span className="label">Nominal (Rp)</span>
+            <span className="money-input">
+              <b>Rp</b>
+              <input type="number" min="1" required inputMode="numeric" placeholder="0"
+                value={f.amount} onChange={set('amount')} />
+            </span>
+          </label>
+
+          <div className="field">
+            <span className="label">Kategori</span>
+            <div className="chips">
+              {cats.filter((c) => c.type === f.type).map((c) => (
+                <button
+                  type="button" key={c.id}
+                  className={`chip ${f.category_id === c.id ? 'on' : ''}`}
+                  onClick={() => setF({ ...f, category_id: c.id })}
+                >
+                  <Icon name={kategoriIcon(c.name)} size={16} />
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="two">
+            <label className="field">
+              <span className="label">Tanggal</span>
+              <input type="date" required value={f.date} onChange={set('date')} />
+            </label>
+            <label className="field">
+              <span className="label">Catatan</span>
+              <input value={f.note} onChange={set('note')} placeholder="Contoh: Makan siang" />
+            </label>
+          </div>
+
+          <div className="row">
+            <Link className="btn ghost" to="/transaksi">Batal</Link>
+            <button className="btn" type="submit">Simpan</button>
+          </div>
+        </form>
+
+        <aside className="form-side d-only">
+          <div className="bubble">
+            <span className="bubble-badge" aria-hidden="true">✨</span>
+            <p>{masuk ? 'Yeay, ada pemasukan baru!' : 'Catat dulu, hemat belakangan.'}</p>
+          </div>
+          <Jummo mood={masuk ? 'senang' : 'santai'} size={170} className="float" alt="" />
+        </aside>
       </div>
-
-      <label>
-        Tanggal
-        <input type="date" required value={f.date} onChange={set('date')} />
-      </label>
-      <label>
-        Catatan
-        <input value={f.note} onChange={set('note')} />
-      </label>
-
-      <button className="btn" type="submit">Simpan</button>
-    </form>
+    </div>
   )
 }

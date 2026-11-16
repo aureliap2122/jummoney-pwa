@@ -24,7 +24,7 @@ export default function DonutChart({ items }) {
   })
 
   return (
-    <div>
+    <div className="donut-wrap">
       <svg viewBox="0 0 160 160" className="donut" role="img" aria-label="Pengeluaran per kategori">
         <g transform="rotate(-90 80 80)">
           {slices.map((s, i) => (
@@ -39,21 +39,23 @@ export default function DonutChart({ items }) {
             />
           ))}
         </g>
-        <text x="80" y="76" textAnchor="middle" fontSize="9" fill="#6B7A99">
+        <text x="80" y="75" textAnchor="middle" fontSize="9" fill="#6B7A99">
           {sel === null ? 'Total keluar' : slices[sel].name}
         </text>
-        <text x="80" y="92" textAnchor="middle" fontSize="12" fontWeight="700" fill="#1B3A6B">
+        <text x="80" y="92" textAnchor="middle" fontSize="12" fontWeight="800" fill="#1B3A6B">
           {rupiah(sel === null ? total : slices[sel].total)}
         </text>
       </svg>
 
       <ul className="legend">
         {slices.map((s, i) => (
-          <li key={s.name} onClick={() => setSel(sel === i ? null : i)}>
-            <i style={{ background: s.color }} />
-            <span>{s.name}</span>
-            <b>{rupiah(s.total)}</b>
-            <small>{Math.round((s.total / total) * 100)}%</small>
+          <li key={s.name} className={sel === i ? 'on' : ''}>
+            <button type="button" onClick={() => setSel(sel === i ? null : i)}>
+              <i style={{ background: s.color }} />
+              <span>{s.name}</span>
+              <b>{rupiah(s.total)}</b>
+              <small>{Math.round((s.total / total) * 100)}%</small>
+            </button>
           </li>
         ))}
       </ul>
